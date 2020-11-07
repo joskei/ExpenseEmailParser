@@ -152,6 +152,39 @@ namespace ExpenseEmailParser.Tests
             Assert.AreEqual(actual.Count, 1);
         }
 
+        [Test]
+        public void TextXMLWithStringAtEnd_Test()
+        {            
+
+            var input = $"<expense>" +
+                        "<cost_centre>DEV001</cost_centre>" +
+                        "<total>11.00</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>" +
+                        "Please also.. ";
+
+            var expected = new List<ExpenseBreakdown>()
+            {
+                new ExpenseBreakdown()
+                {
+                    XmlExtracted =  $"<expense>" +
+                        "<cost_centre>DEV001</cost_centre>" +
+                        "<total>11.00</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>",
+                    GST = "10.00%",
+                    BeforeTotal = 10
+                }
+            };
+
+            var actual = controller.ParseEmail(input);
+
+            Assert.AreEqual(expected[0].XmlExtracted, actual[0].XmlExtracted);
+            Assert.AreEqual(expected[0].GST, actual[0].GST);
+            Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
+            Assert.AreEqual(actual.Count, 1);
+        }
+
         #endregion
 
         #region Validator-Tests
