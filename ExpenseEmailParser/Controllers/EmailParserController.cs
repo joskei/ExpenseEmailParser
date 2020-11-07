@@ -11,19 +11,11 @@ namespace ExpenseEmailParser.Controllers
     [ApiController]
     [Route("[controller]")]
     public class EmailParserController : ControllerBase
-    {
-        
+    {        
         [HttpPost]
         public List<ExpenseBreakdown> ParseEmail(string emailMessage)
         {
-            if (emailMessage.ToLower().Contains("<expense>"))
-            {
-                return new List<ExpenseBreakdown>() { Parser.ParseEmail(emailMessage) };
-            }
-            else
-            {
-                throw new ArgumentException("No expense XML found!");
-            }
+            return Parser.ParseEmail(emailMessage) ;
         }
     }
 }

@@ -17,7 +17,24 @@ namespace ExpenseEmailParser.Business
         private const string elementTotal = "<total>";
 
         #region "Business"
-        internal static ExpenseBreakdown ParseEmail(string emailMessage)
+        internal static List<ExpenseBreakdown> ParseEmail(string emailMessage)
+        {
+            if (Helper.CountXmlStringOccurrences(emailMessage, "<expense>") > 1)
+            {
+                return ParseMultipleXml(emailMessage);
+            }
+            else if (emailMessage.ToLower().Contains("<expense>"))
+            {
+                return new List<ExpenseBreakdown>() { ParseSingleXml(emailMessage) };
+            }
+            else
+            {
+                throw new ArgumentException("No expense XML found!");
+            }
+
+        }
+
+        private static ExpenseBreakdown ParseSingleXml(string emailMessage)
         {
             //Check that there's only 1 XML for <expense>..</expense>
             var validationResult = ValidateOneExpense(emailMessage);
@@ -54,7 +71,7 @@ namespace ExpenseEmailParser.Business
 
             var valueTotal = Regex.Match(strippedXml, String.Concat(elementTotal, "(.*)",
                                             elementTotal.Insert(1, "/"))).Groups[1].Value;
-            
+
             var GSTPercentage = Helper.GetGSTAmount(valueCostCenter);
 
             //Compute for original amount before GST
@@ -74,6 +91,34 @@ namespace ExpenseEmailParser.Business
             };
 
             return result;
+        }
+
+        private static List<ExpenseBreakdown> ParseMultipleXml(string emailMessage)
+        {
+            var validationResult = ValidateMultipleExpenses(emailMessage);
+
+            if (validationResult.Count > 0)
+            {
+                var expensesBreakdown = new List<ExpenseBreakdown>();
+
+                foreach (var item in validationResult)
+                {
+                    var doc = item.Item2;
+                    using (var stringWriter = new StringWriter())
+                    using (var xmlTextWriter = XmlWriter.Create(stringWriter))
+                    {
+
+                        doc.WriteTo(xmlTextWriter);
+                        xmlTextWriter.Flush();
+                        expensesBreakdown.Add(ParseSingleXml(stringWriter.GetStringBuilder().ToString()));
+                    }
+                }
+
+                return expensesBreakdown;
+            }
+
+            //This is the case that there's multiple <expense> but no valid one
+            return null;
         }
         #endregion
 
@@ -133,6 +178,48 @@ namespace ExpenseEmailParser.Business
             }
         }
 
+        internal static List<Tuple<string, XmlDocument>> ValidateMultipleExpenses(string emailMessage)
+        {
+            var xmlEmail = new XmlDocument();
+            var allValidations = new List<Tuple<string, XmlDocument>>();
+
+            var hasExpense = emailMessage.Contains("<expense>");
+
+            do
+            {
+                var startXmlExpense = emailMessage.IndexOf(expenseStartXml);
+                var endXmlExpense = emailMessage.IndexOf(expenseEndXml);
+                Tuple<string, XmlDocument> returnOne;
+
+                if (startXmlExpense == -1)
+                {
+                    return new List<Tuple<string, XmlDocument>>() { new Tuple<string, XmlDocument>("Missing opening <expense> tag", null) };
+
+                }
+
+                if (endXmlExpense == -1)
+                {
+                    return new List<Tuple<string, XmlDocument>>() { new Tuple<string, XmlDocument>("Missing closing </expense> tag", null) };
+                }
+
+                var lengthOfXml = endXmlExpense - startXmlExpense + expenseEndXml.Length;
+
+                var xmlExpense = emailMessage.Substring(startXmlExpense, lengthOfXml);
+
+                returnOne = ValidateOneExpense(xmlExpense);
+
+                if (returnOne.Item2 != null)
+                {
+                    allValidations.Add(new Tuple<string, XmlDocument>(string.Empty, returnOne.Item2));
+                }
+
+                emailMessage = emailMessage.Remove(0, endXmlExpense + expenseEndXml.Length);
+                hasExpense = emailMessage.Contains("<expense>");
+
+            } while (hasExpense);
+
+            return allValidations;
+        }
         #endregion
     }
 }
