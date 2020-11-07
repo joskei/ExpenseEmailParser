@@ -64,6 +64,17 @@ namespace ExpenseEmailParser.Tests
             Assert.Throws<ArgumentException>(() => controller.ParseEmail(input));
         }
 
+        [Test]
+        public void MissingClosingElement_Test()
+        {           
+            var input = $"<expense>" +
+                       "<cost_centre>DEV001</cost_centre>" +
+                       "<total>11.00</total>" +
+                       "<payment_method>personal card</payment_method>";
+
+            Assert.Throws<ArgumentException>(() => controller.ParseEmail(input));
+        }
+
         #endregion
     }
 }
