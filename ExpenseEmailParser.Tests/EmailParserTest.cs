@@ -7,12 +7,19 @@ using System.Collections.Generic;
 namespace ExpenseEmailParser.Tests
 {
     public class Tests
-    {      
-                
+    {
+        EmailParserController controller;
+
+        [SetUp]
+        public void Setup()
+        {
+            controller = new EmailParserController();
+        }
+
+        #region Business-Tests       
         [Test]
         public void XMLOnlyValidValueDev001_Test()
-        {
-            var controller = new EmailParserController();
+        {            
 
             var input = $"<expense>" +
                         "<cost_centre>DEV001</cost_centre>" +
@@ -43,5 +50,20 @@ namespace ExpenseEmailParser.Tests
             Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
             Assert.AreEqual(actual.Count, 1);
         }
+        #endregion
+
+        #region Validator-Tests
+        [Test]
+        public void MissingTotalElement_Test()
+        {
+            var input = $"<expense>" +
+                        "<cost_centre>DEV001</cost_centre>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>";
+
+            Assert.Throws<ArgumentException>(() => controller.ParseEmail(input));
+        }
+
+        #endregion
     }
 }
