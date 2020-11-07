@@ -375,6 +375,60 @@ namespace ExpenseEmailParser.Tests
             Assert.AreEqual(expected[1].ErrorMessage, actual[1].ErrorMessage);
         }
 
+        [Test]
+        public void MultipleExpenseTextEnd_Test()
+        {            
+            var input = $"<expense>" +
+                        "<cost_centre>DEV001</cost_centre>" +
+                        "<total>11.00</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>" +
+                        "<expense>" +
+                        "<cost_centre>DEV003</cost_centre>" +
+                        "<total>11.50</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>asdasdadsasdas";
+
+            var expected = new List<ExpenseBreakdown>()
+            {
+                new ExpenseBreakdown()
+                {
+                    XmlExtracted = $"<expense>" +
+                        "<cost_centre>DEV001</cost_centre>" +
+                        "<total>11.00</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>",
+                    GST = "10.00%",
+                    BeforeTotal = 10,
+                    ErrorMessage = string.Empty
+                },
+                new ExpenseBreakdown()
+                {
+                    XmlExtracted = $"<expense>" +
+                        "<cost_centre>DEV003</cost_centre>" +
+                        "<total>11.50</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>",
+                    GST = "15.00%",
+                    BeforeTotal = 10,
+                    ErrorMessage = string.Empty
+                }
+
+            };
+
+            var actual = controller.ParseEmail(input);
+
+            Assert.AreEqual(expected[0].XmlExtracted, actual[0].XmlExtracted);
+            Assert.AreEqual(expected[0].GST, actual[0].GST);
+            Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
+            Assert.AreEqual(expected[0].ErrorMessage, actual[0].ErrorMessage);
+
+            Assert.AreEqual(expected[1].XmlExtracted, actual[1].XmlExtracted);
+            Assert.AreEqual(expected[1].GST, actual[1].GST);
+            Assert.AreEqual(expected[1].BeforeTotal, actual[1].BeforeTotal);
+            Assert.AreEqual(expected[1].ErrorMessage, actual[1].ErrorMessage);
+        }
+
         #endregion
     }
 }
