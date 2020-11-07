@@ -48,6 +48,7 @@ namespace ExpenseEmailParser.Tests
             Assert.AreEqual(expected[0].XmlExtracted, actual[0].XmlExtracted);
             Assert.AreEqual(expected[0].GST, actual[0].GST);
             Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
+            Assert.AreEqual(expected[0].ErrorMessage, actual[0].ErrorMessage);
             Assert.AreEqual(actual.Count, 1);
         }
 
@@ -82,6 +83,7 @@ namespace ExpenseEmailParser.Tests
             Assert.AreEqual(expected[0].XmlExtracted, actual[0].XmlExtracted);
             Assert.AreEqual(expected[0].GST, actual[0].GST);
             Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
+            Assert.AreEqual(expected[0].ErrorMessage, actual[0].ErrorMessage);
             Assert.AreEqual(actual.Count, 1);
         }
 
@@ -116,6 +118,7 @@ namespace ExpenseEmailParser.Tests
             Assert.AreEqual(expected[0].XmlExtracted, actual[0].XmlExtracted);
             Assert.AreEqual(expected[0].GST, actual[0].GST);
             Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
+            Assert.AreEqual(expected[0].ErrorMessage, actual[0].ErrorMessage);
             Assert.AreEqual(actual.Count, 1);
         }
 
@@ -140,7 +143,8 @@ namespace ExpenseEmailParser.Tests
                         "<payment_method>personal card</payment_method>" +
                         "</expense>",
                     GST = "10.00%",
-                    BeforeTotal = 10
+                    BeforeTotal = 10,
+                    ErrorMessage = string.Empty
                 }
             };
 
@@ -149,6 +153,7 @@ namespace ExpenseEmailParser.Tests
             Assert.AreEqual(expected[0].XmlExtracted, actual[0].XmlExtracted);
             Assert.AreEqual(expected[0].GST, actual[0].GST);
             Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
+            Assert.AreEqual(expected[0].ErrorMessage, actual[0].ErrorMessage);
             Assert.AreEqual(actual.Count, 1);
         }
 
@@ -173,7 +178,8 @@ namespace ExpenseEmailParser.Tests
                         "<payment_method>personal card</payment_method>" +
                         "</expense>",
                     GST = "10.00%",
-                    BeforeTotal = 10
+                    BeforeTotal = 10,
+                    ErrorMessage = string.Empty
                 }
             };
 
@@ -182,6 +188,7 @@ namespace ExpenseEmailParser.Tests
             Assert.AreEqual(expected[0].XmlExtracted, actual[0].XmlExtracted);
             Assert.AreEqual(expected[0].GST, actual[0].GST);
             Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
+            Assert.AreEqual(expected[0].ErrorMessage, actual[0].ErrorMessage);
             Assert.AreEqual(actual.Count, 1);
         }
 
