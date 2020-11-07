@@ -313,10 +313,12 @@ namespace ExpenseEmailParser.Tests
             Assert.AreEqual(expected[0].XmlExtracted, actual[0].XmlExtracted);
             Assert.AreEqual(expected[0].GST, actual[0].GST);
             Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
+            Assert.AreEqual(expected[0].ErrorMessage, actual[0].ErrorMessage);
 
             Assert.AreEqual(expected[1].XmlExtracted, actual[1].XmlExtracted);
             Assert.AreEqual(expected[1].GST, actual[1].GST);
             Assert.AreEqual(expected[1].BeforeTotal, actual[1].BeforeTotal);
+            Assert.AreEqual(expected[1].ErrorMessage, actual[1].ErrorMessage);
         }
 
         #endregion
