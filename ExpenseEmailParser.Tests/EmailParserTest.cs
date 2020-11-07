@@ -50,6 +50,40 @@ namespace ExpenseEmailParser.Tests
             Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
             Assert.AreEqual(actual.Count, 1);
         }
+
+        [Test]
+        public void XMLOnlyValidValueDev002_Test()
+        {
+
+            var input = $"<expense>" +
+                        "<cost_centre>DEV002</cost_centre>" +
+                        "<total>11.20</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>";
+
+            var expected = new List<ExpenseBreakdown>()
+            {
+                new ExpenseBreakdown()
+                {
+                    XmlExtracted = $"<expense>" +
+                        "<cost_centre>DEV002</cost_centre>" +
+                        "<total>11.20</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>",
+                    GST = "12.00%",
+                    BeforeTotal = 10,
+                    ErrorMessage = string.Empty
+                }
+            };
+
+
+            var actual = controller.ParseEmail(input);
+
+            Assert.AreEqual(expected[0].XmlExtracted, actual[0].XmlExtracted);
+            Assert.AreEqual(expected[0].GST, actual[0].GST);
+            Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
+            Assert.AreEqual(actual.Count, 1);
+        }
         #endregion
 
         #region Validator-Tests
