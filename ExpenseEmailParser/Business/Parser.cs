@@ -41,7 +41,7 @@ namespace ExpenseEmailParser.Business
         private static ExpenseBreakdown ParseSingleXml(string emailMessage)
         {
             //Check if there's an valid <expense>..</expense> tag first
-            
+
 
             //Check that there's only 1 XML for <expense>..</expense>
             var validationResult = ValidateOneExpense(emailMessage);
@@ -190,43 +190,50 @@ namespace ExpenseEmailParser.Business
             var xmlEmail = new XmlDocument();
             var allValidations = new List<Tuple<string, XmlDocument>>();
 
-            var hasExpense = emailMessage.Contains("<expense>");
+            //var hasExpense = emailMessage.Contains("<expense>");
 
-            do
+            var validExpenses = Helper.GetXmlExpenses(emailMessage);
+
+            foreach (var expense in validExpenses)
             {
                 var startXmlExpense = emailMessage.IndexOf(expenseStartXml);
                 var endXmlExpense = emailMessage.IndexOf(expenseEndXml);
                 Tuple<string, XmlDocument> returnOne;
-
-                if (startXmlExpense == -1)
-                {
-                    return new List<Tuple<string, XmlDocument>>() { new Tuple<string, XmlDocument>("Missing opening <expense> tag", null) };
-
-                }
-
-                if (endXmlExpense == -1)
-                {
-                    return new List<Tuple<string, XmlDocument>>() { new Tuple<string, XmlDocument>("Missing closing </expense> tag", null) };
-                }
-
+                
                 var lengthOfXml = endXmlExpense - startXmlExpense + expenseEndXml.Length;
 
                 var xmlExpense = emailMessage.Substring(startXmlExpense, lengthOfXml);
 
                 returnOne = ValidateOneExpense(xmlExpense);
-                                
-                if (returnOne.Item1 != null & returnOne.Item1 != string.Empty)
+
+                Tuple<string, XmlDocument> newReturn;
+
+                if (returnOne.Item1 != null & returnOne.Item1 != string.Empty & returnOne.Item2 == null)
                 {
-                    throw new ArgumentException(returnOne.Item1);                    
+                    throw new ArgumentException(returnOne.Item1);
                 }
-                else{
-                    allValidations.Add(new Tuple<string, XmlDocument>(returnOne.Item1, returnOne.Item2));
+                else if (returnOne.Item1 != string.Empty & returnOne.Item2 != null)
+                {
+                    //this is the condition that cost_center is missing
+                    var xmlDoc = returnOne.Item2;
+
+                    XmlElement costCenterElement = xmlDoc.CreateElement("cost_centre");
+
+                    costCenterElement.InnerText = "UNKNOWN";
+                    xmlDoc.DocumentElement.AppendChild(costCenterElement);
+
+                    newReturn = new Tuple<string, XmlDocument>(returnOne.Item1, xmlDoc);
+
                 }
+                else
+                {
+                    newReturn = returnOne;
+                }
+
+                allValidations.Add(newReturn);
 
                 emailMessage = emailMessage.Remove(0, endXmlExpense + expenseEndXml.Length);
-                hasExpense = emailMessage.Contains("<expense>");
-
-            } while (hasExpense);
+            }
 
             return allValidations;
         }
