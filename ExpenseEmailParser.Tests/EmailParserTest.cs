@@ -569,15 +569,37 @@ namespace ExpenseEmailParser.Tests
                         "<payment_method>personal card</payment_method>" +
                         "</expense>dfdfdfdfdf" +
                         "<expense>" +
-                        "<cost_centre>DEV003<cost_centre>" +
+                        "<cost_centre>DEV003</cost_centre>" +
                         "<total>11.50</total>" +
                         "<payment_method>personal card</payment_method>" +
                         "</expense>asasdasd";
 
-            //As per requirement, if Xml is malformed, the whole message is rejected.
-            Assert.Throws<ArgumentException>(() => controller.ParseEmail(input));
-        }
+            var expected = new List<ExpenseBreakdown>()
+            {
+                new ExpenseBreakdown()
+                {
+                    XmlExtracted = $"<expense>" +
+                        "<cost_centre>DEV003</cost_centre>" +
+                        "<total>11.50</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>",
+                    GST = "15.00%",
+                    BeforeTotal = 10,
+                    ErrorMessage = string.Empty
+                }
 
+            };
+
+            var actual = controller.ParseEmail(input);
+
+            Assert.AreEqual(expected[0].XmlExtracted, actual[0].XmlExtracted);
+            Assert.AreEqual(expected[0].GST, actual[0].GST);
+            Assert.AreEqual(expected[0].BeforeTotal, actual[0].BeforeTotal);
+            Assert.AreEqual(expected[0].ErrorMessage, actual[0].ErrorMessage);
+            Assert.AreEqual(actual.Count, 1);
+
+        }
+             
 
         #endregion
     }
