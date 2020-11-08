@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web.Http;
 using System.Xml;
 
 namespace ExpenseEmailParser.Business
@@ -207,10 +210,13 @@ namespace ExpenseEmailParser.Business
                 var xmlExpense = emailMessage.Substring(startXmlExpense, lengthOfXml);
 
                 returnOne = ValidateOneExpense(xmlExpense);
-
-                if (returnOne.Item2 != null)
+                                
+                if (returnOne.Item1 != null & returnOne.Item1 != string.Empty)
                 {
-                    allValidations.Add(new Tuple<string, XmlDocument>(string.Empty, returnOne.Item2));
+                    throw new ArgumentException(returnOne.Item1);                    
+                }
+                else{
+                    allValidations.Add(new Tuple<string, XmlDocument>(returnOne.Item1, returnOne.Item2));
                 }
 
                 emailMessage = emailMessage.Remove(0, endXmlExpense + expenseEndXml.Length);

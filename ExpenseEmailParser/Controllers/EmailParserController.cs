@@ -15,7 +15,7 @@ namespace ExpenseEmailParser.Controllers
         [HttpPost]
         public List<ExpenseBreakdown> ParseEmail(string emailMessage)
         {
-            return Parser.ParseEmail(emailMessage) ;
+            return Parser.ParseEmail(emailMessage) ;            
         }
     }
 }
