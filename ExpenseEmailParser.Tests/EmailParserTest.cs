@@ -541,10 +541,29 @@ namespace ExpenseEmailParser.Tests
         }
 
         [Test]
-        public void MultipleExpenseOnlyOneValid_Test()
+        public void MultipleExpense_InvalidCostCentreTag_Test()
         {
             //The cost_centre in the 2nd expense tag doesn't have a closing tag
             var input = $"aaasasd<expense>" +
+                        "<cost_centre>DEV001</cost_centre>" +
+                        "<total>11.00</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>dfdfdfdfdf" +
+                        "<expense>" +
+                        "<cost_centre>DEV003<cost_centre>" +
+                        "<total>11.50</total>" +
+                        "<payment_method>personal card</payment_method>" +
+                        "</expense>asasdasd";
+
+            //As per requirement, if Xml is malformed, the whole message is rejected.
+            Assert.Throws<ArgumentException>(() => controller.ParseEmail(input));
+        }
+
+        [Test]
+        public void MultipleExpense_InvalidFirstExpenseTag_Test()
+        {
+            //The cost_centre in the 2nd expense tag doesn't have a closing tag
+            var input = $"aaasasd<expense1>" +
                         "<cost_centre>DEV001</cost_centre>" +
                         "<total>11.00</total>" +
                         "<payment_method>personal card</payment_method>" +

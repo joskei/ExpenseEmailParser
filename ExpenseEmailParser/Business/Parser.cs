@@ -22,12 +22,13 @@ namespace ExpenseEmailParser.Business
         #region "Business"
         internal static List<ExpenseBreakdown> ParseEmail(string emailMessage)
         {
-            if (Helper.CountXmlStringOccurrences(emailMessage, "<expense>") > 1)
+            if (Helper.CountXmlStringOccurrences(emailMessage) > 1)
             {
                 return ParseMultipleXml(emailMessage);
             }
-            else if (emailMessage.ToLower().Contains("<expense>"))
+            else if (Helper.GetXmlExpenses(emailMessage).Count == 1)
             {
+                emailMessage = Helper.GetXmlExpenses(emailMessage)[0];
                 return new List<ExpenseBreakdown>() { ParseSingleXml(emailMessage) };
             }
             else
@@ -39,6 +40,9 @@ namespace ExpenseEmailParser.Business
 
         private static ExpenseBreakdown ParseSingleXml(string emailMessage)
         {
+            //Check if there's an valid <expense>..</expense> tag first
+            
+
             //Check that there's only 1 XML for <expense>..</expense>
             var validationResult = ValidateOneExpense(emailMessage);
             if (validationResult.Item2 == null)

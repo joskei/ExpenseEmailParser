@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -49,17 +50,17 @@ namespace ExpenseEmailParser.Business
             }
         }
 
-        internal static int CountXmlStringOccurrences(string text, string pattern)
+        internal static int CountXmlStringOccurrences(string text)
+        {                     
+            return Regex.Matches(text, @"<expense>[\s\S]*?<\/expense>").Count;
+        }
+
+        internal static List<string> GetXmlExpenses(string text)
         {
-            // Loop through all instances of the string 'text'.
-            int count = 0;
-            int i = 0;
-            while ((i = text.IndexOf(pattern, i)) != -1)
-            {
-                i += pattern.Length;
-                count++;
-            }
-            return count;
+            return Regex.Matches(text, @"<expense>[\s\S]*?<\/expense>")
+                .Cast<Match>()
+                .Select(m => m.Value)
+                .ToList();
         }
     }
 }
